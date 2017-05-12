@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="drug.dao.business.RepostoryDao">
+  	<resultMap type="drug.entity.Repostory" id="repo">
+  		<result column="repo_id" property="repo_id"/>
+  		<result column="repo_status" property="repo_status"/>
+  		<result column="repo_capacity" property="repo_capacity"/>
+  		<result column="repo_position" property="repo_position"/>
+  		<result column="repo_avai" property="repo_avai"/>
+  		<result column="repo_time" property="repo_time" jdbcType="DATE" javaType="java.sql.Timestamp"/>
+  	</resultMap>
+  	<select id="findAll" parameterType="hashmap" resultMap="repo">
+  		select repo_id,repo_status,repo_capacity,repo_position,repo_avai,repo_time from
+  			(
+  			select ROWNUM n,repo_id,repo_status,repo_capacity,repo_position,repo_avai,repo_time from db_drg_instore t 
+  		<where>
+  			<if test="status!=null">
+  				and repo_status=#{status}
+  			</if>
+  			<if test="search!=null">
+  				and repo_id like '%'||#{search}||'%' or repo_status like #{search} or repo_capacity like '%'||#{search}||'%'
+  				or repo_position like '%'||#{search}||'%' or repo_avai like '%'||#{search}||'%'
+  			</if>
+  			<if test="page!=null">
+  				and <![CDATA[ ROWNUM<=to_number(#{page})*5 ]]>
+  			</if>
+  		</where>
+  		order by repo_id
+  		)
+  		<if test="page!=null">
+  			where <![CDATA[ n>(to_number(#{page})-1)*5 ]]>
+  		</if>
+  	</select>
+  </mapper>

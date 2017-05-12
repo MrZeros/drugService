@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <mapper namespace="drug.dao.business.PurchaseDao">
+   		<resultMap type="drug.entity.BusinessVo" id="business">
+   			<result column="BUS_ID" property="bus_id"/>
+   			<result column="DRG_NO" property="drg_no"/>
+   			<result column="DRG_NAME" property="drg_name"/>
+   			<result column="DRG_UNIT" property="drg_unit"/>
+   			<result column="DRG_TYPE" property="drg_type"/>
+   			<result column="P_NAME" property="p_name"/>
+   			<result column="P_ID" property="p_id"/>
+   			<result column="P_ADDRESS" property="p_address"/>
+   			<result column="REPO_STORE" property="repo_store" jdbcType="INTEGER"/>
+   			<result column="BUY_NUM" property="buy_num" jdbcType="INTEGER"/>
+   			<result column="REPO_OPERATOR" property="repo_operator"/>
+   			<result column="STATUS" property="status"/>
+   			<result column="INSPECTOR" property="inspector"/>
+   			<result column="BUYER" property="buyer"/>
+   			<result column="AUDITOR" property="auditor"/>
+   			<result column="REPO_TIME" property="repo_time" jdbcType="DATE" javaType="java.sql.Timestamp"/>
+   			<result column="PURCHASE_TIME" property="purchase_time"  jdbcType="DATE" javaType="java.sql.Timestamp"/>
+   			<result column="INSP_TIME" property="insp_time"  jdbcType="DATE" javaType="java.sql.Timestamp"/>
+   			<result column="AUDIT_TIME" property="audit_time" jdbcType="DATE" javaType="java.sql.Timestamp"/>
+   			<result column="DRG_PRICE" property="drg_price"  jdbcType="DOUBLE"/>
+   			<result column="DRG_VALUE" property="drg_value" jdbcType="DOUBLE"/>
+   		</resultMap>
+   		<select id="findAll" parameterType="hashmap" resultMap="business">
+   		select BUS_ID,DRG_NO,DRG_NAME,DRG_UNIT,DRG_TYPE,P_NAME,P_ID,P_ADDRESS,REPO_STORE,BUY_NUM,
+   			REPO_OPERATOR,STATUS,INSPECTOR,BUYER,AUDITOR,REPO_TIME,PURCHASE_TIME,INSP_TIME,AUDIT_TIME,
+   			DRG_PRICE,DRG_VALUE from (
+   			select ROWNUM N,BUS_ID,DRG_NO,DRG_NAME,DRG_UNIT,DRG_TYPE,P_NAME,P_ID,P_ADDRESS,REPO_STORE,BUY_NUM,
+   			REPO_OPERATOR,STATUS,INSPECTOR,BUYER,AUDITOR,REPO_TIME,PURCHASE_TIME,INSP_TIME,AUDIT_TIME,
+   			DRG_PRICE,DRG_VALUE from db_drg_purchase 
+   			<where>
+   				<if test="search!=null">
+   					 BUS_ID like '%'||#{search}||'%' or 
+   					 DRG_NO like '%'||#{search}||'%' or 
+   					 DRG_NAME like '%'||#{search}||'%' or 
+   					 DRG_UNIT like '%'||#{search}||'%' or 
+   					 DRG_TYPE like '%'||#{search}||'%' or 
+   					 P_NAME like '%'||#{search}||'%' or 
+   					 P_ID like '%'||#{search}||'%' or 
+   					 P_ADDRESS like '%'||#{search}||'%' or 
+   					 REPO_STORE like '%'||#{search}||'%' or 
+   					 BUY_NUM like '%'||#{search}||'%' or 
+   					 REPO_OPERATOR like '%'||#{search}||'%' or 
+   					 INSPECTOR like '%'||#{search}||'%' or 
+   					 BUYER like '%'||#{search}||'%' or 
+   					 AUDITOR like '%'||#{search}||'%' or 
+   					 DRG_PRICE like '%'||#{search}||'%'
+   				</if>
+   				and status=#{status} and <![CDATA[ ROWNUM<=to_number(#{page})*5 ]]>
+   			</where> 
+   			order by BUS_ID
+   			)  where <![CDATA[ N>(to_number(#{page})-1)*5 ]]>
+   		</select>
+   		<update id="updatePurchase" parameterType="hashmap">
+   			update db_drg_purchase set status='1' where BUS_ID=#{bus_id}
+   		</update>
+   </mapper>

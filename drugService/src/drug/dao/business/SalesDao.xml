@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="drug.dao.business.SalesDao">
+  	<resultMap type="drug.entity.SaleVo" id="sale">
+  		<result column="sale_no" property="sale_no"/>
+  		<result column="drg_no" property="drg_no"/>
+  		<result column="repo_no" property="repo_no"/>
+  		<result column="repo_local" property="repo_local"/>
+  		<result column="drg_name" property="drg_name"/>
+  		<result column="sale_date" property="sale_date" jdbcType="DATE" javaType="java.sql.Timestamp"/>
+  		<result column="sale_num" property="sale_num"/>
+  		<result column="sale_money" property="sale_money"/>
+  		<result column="drg_price" property="drg_price"/>
+  		<result column="sale_operator" property="sale_operator"/>
+  		<result column="user_name" property="user_name"/>
+  		<result column="user_addr" property="user_addr"/>
+  	</resultMap>
+  	<select id="findAll" parameterType="hashmap" resultMap="sale">
+  		select sale_no,drg_no,repo_no,repo_local,drg_name,sale_date,sale_num,sale_money,drg_price,sale_operator,user_name,user_addr from
+  			(
+  			select ROWNUM n,sale_no,drg_no,repo_no,repo_local,drg_name,sale_date,sale_num,sale_money,drg_price,sale_operator,user_name,user_addr from db_drg_sale t 
+  		<where>
+  			sale_date between to_date(#{startDate},'yyyy-mm-dd') and to_date(#{endDate},'yyyy-mm-dd')
+  			<if test="search!=null">
+  				and sale_no like '%'||#{search}||'%' or drg_no like #{search} or repo_no like '%'||#{search}||'%'
+  				or repo_local like '%'||#{search}||'%' or drg_name like '%'||#{search}||'%' or
+  				sale_num like '%'||#{search}||'%' or
+  				sale_money like '%'||#{search}||'%' or
+  				drg_price like '%'||#{search}||'%' or
+  				sale_operator like '%'||#{search}||'%' or
+  				user_name like '%'||#{search}||'%' or
+  				user_addr like '%'||#{search}||'%'
+  			</if>
+  			<if test="page!=null">
+  				and <![CDATA[ ROWNUM<=to_number(#{page})*5 ]]>
+  			</if>
+  		</where>
+  		order by sale_no
+  		)
+  		<if test="page!=null">
+  			where <![CDATA[ n>(to_number(#{page})-1)*5 ]]>
+  		</if>
+  	</select>
+  </mapper>

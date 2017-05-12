@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="drug.dao.business.DrugInRepoDao">
+  	<resultMap type="drug.entity.DrugInfo" id="drug">
+  		<result column="drg_no" property="drg_no"/>
+  		<result column="repo_no" property="repo_no"/>
+  		<result column="drg_name" property="drg_name"/>
+  		<result column="drg_unit" property="drg_unit"/>
+  		<result column="drg_type" property="drg_type"/>
+  		<result column="p_name" property="p_name"/>
+  		<result column="p_id" property="p_id"/>
+  		<result column="p_address" property="p_address"/>
+  		<result column="drg_num" property="drg_num" jdbcType="INTEGER"/>
+  		<result column="sale_num" property="sale_num" jdbcType="INTEGER"/>
+  		<result column="repo_local" property="repo_local"/>
+  		<result column="drg_price" property="drg_price" jdbcType="DOUBLE"/>
+  		<result column="drg_value" property="drg_value" jdbcType="DOUBLE"/>
+  	</resultMap>
+  	<select id="findAll" parameterType="hashmap" resultMap="drug">
+  		select drg_no,repo_no,drg_name,drg_unit,drg_type,p_name,p_id,p_address,drg_num,
+  			sale_num,repo_local,drg_price,drg_value from
+  			(
+  		select rownum n,drg_no,repo_no,drg_name,drg_unit,drg_type,p_name,p_id,p_address,drg_num,
+  			sale_num,repo_local,drg_price,drg_value
+  		 from  db_drg_info t 
+  		 <where>
+  		 	<if test="repoNo!=null">
+  		 		 repo_no=${repoNo}
+  		 	</if>
+  		 	<if test="search!=null">
+  		 		and drg_no like '%'||#{search}||'%' or
+  		 		repo_no like '%'||#{search}||'%' or
+  		 		drg_name like '%'||#{search}||'%' or
+  		 		drg_unit like '%'||#{search}||'%' or
+  		 		drg_type like '%'||#{search}||'%' or
+  		 		p_name like '%'||#{search}||'%' or
+  		 		p_id like '%'||#{search}||'%' or
+  		 		p_address like '%'||#{search}||'%' or
+  		 		drg_num like '%'||#{search}||'%' or
+  		 		sale_num like '%'||#{search}||'%' or
+  		 		repo_local like '%'||#{search}||'%' or
+  		 		drg_price like '%'||#{search}||'%' 
+  		 	</if>
+  		 	and <![CDATA[rownum<=to_number(#{page})*5]]>
+  		 </where>
+  		 order by repo_no
+  		 ) where <![CDATA[n>(to_number(#{page})-1)*5]]>
+  	</select>
+  </mapper>

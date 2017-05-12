@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="drug.dao.user.UserDao">
+  	<resultMap type="drug.entity.Function" id="function">
+  		<result column="func_id" property="func_id"/>
+  		<result column="func_name" property="func_name"/>
+  		<result column="action" property="action"/>
+  		<result column="icon" property="icon"/>
+  		<result column="parent_func_id" property="parent_func_id"/>
+  	</resultMap>
+  	<resultMap type="drug.entity.UserSession" id="user">
+  		<result column="user_id" property="user_id"/>
+  		<result column="user_name" property="user_name"/>
+  		<result column="user_passwd" property="user_passwd"/>
+  		<result column="user_sex" property="user_sex"/>
+  		<result column="user_phone" property="user_phone"/>
+  		<result column="user_email" property="user_email"/>
+  		<result column="status" property="numLim"/>
+  	</resultMap>
+  	<resultMap type="drug.entity.RoleVo" id="role">
+  		<result column="role_id" property="role_id"/>
+  		<result column="role_name" property="role_name"/>
+  		<result column="is_used" property="is_used"/>
+  		<result column="last_time" property="last_time" jdbcType="DATE" javaType="java.sql.Timestamp"/>
+  	</resultMap>
+  	<select id="login" parameterType="drug.entity.UserSession" resultType="int">
+  		select count(*) from db_user t where t.user_id=#{user_id} and t.user_passwd=#{user_passwd}
+  	</select>
+  	<select id="getRoles" parameterType="String" resultType="String">
+  		select role_id from db_user_role t where t.user_id=#{uid}
+  	</select>
+  	
+  	<select id="getT1Permissions" parameterType="String" resultMap="function">
+  		select t2.func_id,t2.func_name,t2.action,t2.icon from db_role_func t1,db_func t2 where t1.func_id=t2.func_id and t1.role_id=#{rid}
+  	</select>
+  	
+  	<select id="getChildPermissions" parameterType="String" resultMap="function">
+  		select func_id,func_name,action,icon from db_func t where t.parent_func_id=#{fid}
+  	</select>
+  	<select id="getUserNumLimit" parameterType="String" resultType="String">
+  		select status from db_user_num_lim where user_id=#{uid}
+  	</select>
+  	<select id="findAll" parameterType="hashmap" resultMap="user">
+  		select user_id,user_name,user_passwd,user_phone,user_email,user_sex,status from(
+  			select rownum n,a.user_id,a.user_name,a.user_passwd,a.user_phone,a.user_email,a.user_sex,b.status from db_user a,db_user_num_lim b 
+  				where a.user_id=b.user_id and <![CDATA[rownum<=to_number(#{page})*5]]> 
+  				<if test="search!=null">
+  					and user_id like '%'||#{search}||'%' or
+  					user_name like '%'||#{search}||'%' or
+  					user_passwd like '%'||#{search}||'%' or
+  					user_phone like '%'||#{search}||'%' or
+  					user_email like '%'||#{search}||'%' or
+  					user_sex like '%'||#{search}||'%' or
+  					status like '%'||#{search}||'%'
+  				</if> 
+  				order by user_id)
+  		where <![CDATA[ n>(to_number(#{page})-1)*5 ]]>
+  	</select>
+  	<select id="findAllRoles" parameterType="hashmap" resultMap="role">
+  		select role_id,role_name,is_used,last_time from(
+  			select rownum n,role_id,role_name,is_used,last_time from db_role  
+  				where  <![CDATA[rownum<=to_number(#{page})*5]]> 
+  				<if test="search!=null">
+  					and role_id like '%'||#{search}||'%' or
+  					role_name like '%'||#{search}||'%' or
+  					is_used like '%'||#{search}||'%'
+  				</if> 
+  				order by role_id)
+  		where <![CDATA[ n>(to_number(#{page})-1)*5 ]]>
+  	</select>
+  	<select id="findAllFunc" parameterType="hashmap" resultMap="function">
+  		select func_id,func_name,action,icon,parent_func_id from(
+  			select rownum n,func_id,func_name,action,icon,parent_func_id from db_func 
+  				where  <![CDATA[rownum<=to_number(#{page})*5]]> 
+  				<if test="search!=null">
+  					and func_id like '%'||#{search}||'%' or
+  					func_name like '%'||#{search}||'%' or
+  					action like '%'||#{search}||'%' or
+  					icon like '%'||#{search}||'%' or
+  					parent_func_id like '%'||#{search}||'%'
+  				</if> 
+  				order by func_id)
+  		where <![CDATA[ n>(to_number(#{page})-1)*5 ]]>
+  	</select>
+  </mapper>
